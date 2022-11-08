@@ -3,7 +3,7 @@ import numpy as np
 import requests
 
 n_rotores = 4
-n_individuos = 200
+n_individuos = 100
 n_generaciones = 1000
 vec_mejora = []
 c = 0.82
@@ -21,7 +21,7 @@ for i in range(n_individuos):
     vars = []
     mots = []
     for j in range(n_rotores):
-        var = random.uniform(0,100)
+        var = random.uniform(0,60)
         vars.append(var)
         normal = np.random.normal(0, var)
         mots.append(normal)
