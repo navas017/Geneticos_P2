@@ -3,13 +3,11 @@ import numpy as np
 import requests
 
 n_rotores = 10
-n_individuos = 100
 n_generaciones = 1000
 c = 0.82
-factor = 2
-
-""" Clase que define la combinación de los motores ,varianzas y su valor de adecuación """
-
+s = 10
+inicial =10
+final = 110
 
 class Motores:
     def __init__(self, motor, varianzas, fitness_value):
@@ -17,88 +15,76 @@ class Motores:
         self.varianzas = varianzas
         self.fitness_value = fitness_value
 
-
-""" Bucle para inicializar la pobalción """
-poblacion = []
 vec_mejora = []
-for i in range(n_individuos):
-    vars = []
-    mots = []
-    for j in range(n_rotores):
-        var = random.uniform(0, 60)
-        vars.append(var)
-        #normal = np.random.normal(0, var)
-        normal = 0
-        mots.append(normal)
-    llamada = "http://memento.evannai.inf.uc3m.es/age/robot10?c1=" + str(mots[0]) + "&c2=" + str(
-        mots[1]) + "&c3=" + str(mots[2]) + "&c4=" + str(mots[3]) + "&c5=" + str(mots[4]) + "&c6=" + str(
-        mots[5]) + "&c7=" + str(mots[6]) + "&c8=" + str(mots[7]) + "&c9=" + str(mots[8]) + "&c10=" + str(mots[9])
-    r = requests.get(llamada)
-    poblacion.append(Motores(mots, vars, float(r.text)))
 
-""" Bucle para las generaciones """
-cont = 0
-min_fitness = 10000
-minimos = []
-while cont < n_generaciones:
-    for i in range(len(poblacion)):
-        hijo = []
-        for j in range(n_rotores):
-            suma = poblacion[i].motor[j] + np.random.normal(0, poblacion[i].varianzas[j])
-            hijo.append(suma)
-        fit_hijo = "http://memento.evannai.inf.uc3m.es/age/robot10?c1=" + str(hijo[0]) + "&c2=" + str(
-            hijo[1]) + "&c3=" + str(hijo[2]) + "&c4=" + str(hijo[3]) + "&c5=" + str(hijo[4]) + "&c6=" + str(
-            hijo[5]) + "&c7=" + str(hijo[6]) + "&c8=" + str(hijo[7]) + "&c9=" + str(hijo[8]) + "&c10=" + str(hijo[9])
-        r = requests.get(fit_hijo)
+for generacion in range(n_generaciones):
 
-        if float(r.text) < poblacion[i].fitness_value:          # El hijo es mejor que el padre
-            poblacion[i].fitness_value = float(r.text)
-            poblacion[i].motor = hijo
+    if generacion == 0:       # Inicialización del padre
+        vars = []
+        mots = []
+        for rotor in range(n_rotores):
+            var = random.uniform(inicial, final)
+            vars.append(var)
+            #normal = np.random.normal(0, var)
+            normal = 0
+            mots.append(normal)
+        fit_padre = "http://memento.evannai.inf.uc3m.es/age/robot10?c1=" + str(mots[0]) + "&c2=" + str(
+            mots[1]) + "&c3=" + str(mots[2]) + "&c4=" + str(mots[3]) + "&c5=" + str(mots[4]) + "&c6=" + str(
+            mots[5]) + "&c7=" + str(mots[6]) + "&c8=" + str(mots[7]) + "&c9=" + str(mots[8]) + "&c10=" + str(mots[9])
+        fitness_padre = requests.get(fit_padre)
+        padre = Motores(mots, vars, float(fitness_padre.text))
 
-        if float(poblacion[i].fitness_value) < min_fitness:
-            min_fitness = poblacion[i].fitness_value
-    minimos.append(min_fitness)
-    """ Mejora global para 1/5 """
-    if cont != 0:
-        if minimos[cont] == minimos[cont - 1]:
-            vec_mejora.append(0)
-        if minimos[cont] != minimos[cont - 1]:
-            vec_mejora.append(1)
+    """ Creación del hijo """
+    motor_hijo = []
+    varianzas_hijo = []
+    for rotor in range(n_rotores):
+        motor_hijo.append((padre.motor[rotor] + np.random.normal(0,padre.varianzas[rotor])))
+        varianzas_hijo.append(padre.varianzas[rotor])
+    fit_hijo = "http://memento.evannai.inf.uc3m.es/age/robot10?c1=" + str(motor_hijo[0]) + "&c2=" + str(
+        motor_hijo[1]) + "&c3=" + str(motor_hijo[2]) + "&c4=" + str(motor_hijo[3]) + "&c5=" + str(
+        motor_hijo[4]) + "&c6=" + str(motor_hijo[5]) + "&c7=" + str(motor_hijo[6]) + "&c8=" + str(
+        motor_hijo[7]) + "&c9=" + str(motor_hijo[8]) + "&c10=" + str(motor_hijo[9])
+    fitness_hijo = requests.get(fit_hijo)
+    hijo = Motores(motor_hijo, varianzas_hijo, float(fitness_hijo.text))
 
-    """ Regla de 1/5 """
+    print(padre.fitness_value)
+    print(hijo.fitness_value)
 
-    if (len(vec_mejora) > 0) and (len(vec_mejora) % factor == 0):
+    if hijo.fitness_value < padre.fitness_value:
+        print("Entra")
+        padre.varianzas = hijo.varianzas
+        padre.motor = hijo.motor
+        padre.fitness_value = hijo.fitness_value
+        vec_mejora.append(1)
+    else:
+        vec_mejora.append(0)
+
+    if len(vec_mejora) % s == 0:
         aux = []
-        if len(vec_mejora) == factor:
+        if len(vec_mejora) == s:
             aux = vec_mejora
         else:
-            aux = vec_mejora[-factor:]
+            aux = vec_mejora[-s:]
 
         sumatorio = 0
-        for i in aux:
-            sumatorio += i
-        mejora = sumatorio / factor
+        for elemento in aux:
+            sumatorio += elemento
+        media = sumatorio / s
 
-        if mejora < 0.2:
-            for j in range(len(poblacion)):
-                for k in range(n_rotores):
-                    # print("Antes ",poblacion[j].varianzas[k])
-                    poblacion[j].varianzas[k] = poblacion[j].varianzas[k] * c
-                    # print("Despues ",poblacion[j].varianzas[k])
-        if mejora > 0.2:
-            for j in range(len(poblacion)):
-                for k in range(n_rotores):
-                    # print("Antes ",poblacion[j].varianzas[k])
-                    poblacion[j].varianzas[k] = poblacion[j].varianzas[k] / c
-                    # print("Despues ",poblacion[j].varianzas[k])
+        if media < 0.2:
+            for rotor in range(n_rotores):
+                # print("Antes ",poblacion[j].varianzas[k])
+                padre.varianzas[rotor] = padre.varianzas[rotor] * c
+                # print("Despues ",poblacion[j].varianzas[k])
+        if media > 0.2:
+            for rotor in range(n_rotores):
+                # print("Antes ",poblacion[j].varianzas[k])
+                padre.varianzas[rotor] = padre.varianzas[rotor] / c
+                # print("Despues ",poblacion[j].varianzas[k])
 
-    print(min_fitness)
-    print(cont)
-    cont += 1
+    print("Iteracion: ", generacion)
+    print("Fitness: ", padre.fitness_value)
 
-"""
-for i in range(len(poblacion)):
-    print(poblacion[i].motor)
-    print(poblacion[i].varianzas)
-    print(poblacion[i].fitness_value)
-"""
+
+
+
