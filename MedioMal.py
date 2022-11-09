@@ -60,9 +60,34 @@ while cont < n_generaciones:
 
         if float(poblacion[i].fitness_value) < min_fitness:
             min_fitness = poblacion[i].fitness_value
-    minimos.append(min_fitness)
+
 
     """ Regla de 1/5 """
+    if len(vec_mejora) == factor:
+        sumatorio = 0
+        for valor in vec_mejora:
+            sumatorio += valor
+        mejora = sumatorio / factor
+
+        if mejora < 0.2:
+            for individuo in range(len(poblacion)):
+                for k in range(n_rotores):
+                    # print("Antes ",poblacion[j].varianzas[k])
+                    poblacion[j].varianzas[k] = poblacion[j].varianzas[k] * c
+                    # print("Despues ",poblacion[j].varianzas[k])
+        if mejora > 0.2:
+            for j in range(len(poblacion)):
+                for k in range(n_rotores):
+                    # print("Antes ",poblacion[j].varianzas[k])
+                    poblacion[j].varianzas[k] = poblacion[j].varianzas[k] / c
+                    # print("Despues ",poblacion[j].varianzas[k])
+
+
+
+
+
+
+
 
     if (len(vec_mejora) > 0) and (len(vec_mejora) % factor == 0):
         aux = []
