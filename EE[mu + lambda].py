@@ -17,7 +17,7 @@ class Motores:
         self.varianzas = varianzas
         self.fitness_value = fitness_value
 
-""" Bucle para inicializar la pobalción """
+""" Bucle para inicializar la población """
 poblacion = []
 for i in range(n_individuos):
     vars = []
@@ -45,7 +45,7 @@ while generacion < n_generaciones:
             new_var = np.sqrt(pow(padre.varianzas[i],2) + pow(madre.varianzas[i],2))
             mutar = random.randint(0,100)
             if mutar <= prob_mutacion:
-                t_aprendizaje = b/(np.sqrt(2)*np.sqrt(n_individuos))
+                t_aprendizaje = b/(np.sqrt(2)*np.sqrt(n_rotores))
                 new_var = new_var * np.exp(np.random.normal(0, t_aprendizaje))
             var_hijo.append(new_var)
             mot_hijo.append(np.random.normal(0,var_hijo[i]))
