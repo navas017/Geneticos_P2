@@ -6,7 +6,7 @@ n_rotores = 10
 n_individuos = 100
 n_generaciones = 1000
 c = 0.82
-factor = 2
+factor = 10
 
 """ Clase que define la combinación de los motores ,varianzas y su valor de adecuación """
 
@@ -25,7 +25,7 @@ for i in range(n_individuos):
     vars = []
     mots = []
     for j in range(n_rotores):
-        var = random.uniform(0, 60)
+        var = random.uniform(100, 200)
         vars.append(var)
         #normal = np.random.normal(0, var)
         normal = 0
@@ -54,16 +54,13 @@ while cont < n_generaciones:
         if float(r.text) < poblacion[i].fitness_value:          # El hijo es mejor que el padre
             poblacion[i].fitness_value = float(r.text)
             poblacion[i].motor = hijo
+            vec_mejora.append(1)
+        else:
+            vec_mejora.append(0)
 
         if float(poblacion[i].fitness_value) < min_fitness:
             min_fitness = poblacion[i].fitness_value
     minimos.append(min_fitness)
-    """ Mejora global para 1/5 """
-    if cont != 0:
-        if minimos[cont] == minimos[cont - 1]:
-            vec_mejora.append(0)
-        if minimos[cont] != minimos[cont - 1]:
-            vec_mejora.append(1)
 
     """ Regla de 1/5 """
 

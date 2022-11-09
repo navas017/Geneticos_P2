@@ -7,6 +7,7 @@ n_rotores = 4
 n_individuos = 100
 n_generaciones = 1000
 prob_mutacion = 5
+b = 0.9
 c = 0.82
 
 """ Clase que define la combinación de los motores ,varianzas y su valor de adecuación """
@@ -44,13 +45,15 @@ while generacion < n_generaciones:
             new_var = np.sqrt(pow(padre.varianzas[i],2) + pow(madre.varianzas[i],2))
             mutar = random.randint(0,100)
             if mutar <= prob_mutacion:
-                new_var = new_var * np.exp(np.random.normal(0, new_var))
+                t_aprendizaje = b/(np.sqrt(2)*np.sqrt(n_individuos))
+                new_var = new_var * np.exp(np.random.normal(0, t_aprendizaje))
             var_hijo.append(new_var)
             mot_hijo.append(np.random.normal(0,var_hijo[i]))
+
             #mot_hijo.append(((padre.motor[i]+madre.motor[i])/2) + (np.random.normal(0,var_hijo[i])))
         llamada2 = "http://memento.evannai.inf.uc3m.es/age/robot4?c1=" + str(mot_hijo[0]) + "&c2=" + str(mot_hijo[1]) + "&c3=" + str(mot_hijo[2]) + "&c4=" + str(mot_hijo[3])
         fit_hijo = (requests.get(llamada2)).text
-        poblacion.append(Motores(mot_hijo,var_hijo,float(fit_hijo)))
+        poblacion.append(Motores(mot_hijo, var_hijo, float(fit_hijo)))
         cont += 2
 
     """ Ordenar de mayor a menor fitness y eliminar los n_individuos/2 peores """
