@@ -3,11 +3,11 @@ import numpy as np
 import requests
 
 n_rotores = 10
-n_generaciones = 1000
+n_generaciones = 100000
 c = 0.82
-s = 10
-inicial =10
-final = 110
+s = 15
+inicial =100
+final = 200
 
 class Motores:
     def __init__(self, motor, varianzas, fitness_value):
@@ -19,7 +19,7 @@ vec_mejora = []
 
 for generacion in range(n_generaciones):
 
-    if generacion == 0:       # Inicialización del padre
+    if generacion == 0:       # Inicialización del padre, con varianzas aleatorias, motores en 0 y valor fitness
         vars = []
         mots = []
         for rotor in range(n_rotores):
@@ -59,15 +59,10 @@ for generacion in range(n_generaciones):
     else:
         vec_mejora.append(0)
 
-    if len(vec_mejora) % s == 0:
-        aux = []
-        if len(vec_mejora) == s:
-            aux = vec_mejora
-        else:
-            aux = vec_mejora[-s:]
+    if len(vec_mejora) == s:
 
         sumatorio = 0
-        for elemento in aux:
+        for elemento in vec_mejora:
             sumatorio += elemento
         media = sumatorio / s
 
@@ -81,6 +76,8 @@ for generacion in range(n_generaciones):
                 # print("Antes ",poblacion[j].varianzas[k])
                 padre.varianzas[rotor] = padre.varianzas[rotor] / c
                 # print("Despues ",poblacion[j].varianzas[k])
+        vec_mejora = []
+
 
     print("Iteracion: ", generacion)
     print("Fitness: ", padre.fitness_value)
