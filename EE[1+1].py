@@ -2,7 +2,7 @@ import random
 import numpy as np
 import requests
 
-n_rotores = 4
+n_rotores = 10
 n_individuos = 100
 n_generaciones = 1000
 vec_mejora = []
@@ -25,7 +25,7 @@ for i in range(n_individuos):
         vars.append(var)
         normal = np.random.normal(0, var)
         mots.append(normal)
-    llamada = "http://memento.evannai.inf.uc3m.es/age/robot4?c1=" + str(mots[0]) + "&c2=" + str(mots[1]) + "&c3=" + str(mots[2]) + "&c4=" + str(mots[3])
+    llamada = "http://memento.evannai.inf.uc3m.es/age/robot4?c1=" + str(mots[0]) + "&c2=" + str(mots[1]) + "&c3=" + str(mots[2]) + "&c4=" + str(mots[3]) + "&c5=" + str(mots[4]) + "&c6=" + str(mots[5]) + "&c7=" + str(mots[6]) + "&c8=" + str(mots[7]) + "&c9=" + str(mots[8]) + "&c10=" + str(mots[9])
     r = requests.get(llamada)
     poblacion.append(Motores(mots,vars,float(r.text)))
 
@@ -39,7 +39,7 @@ while cont < n_generaciones:
         for j in range(n_rotores):
             suma = poblacion[i].motor[j] + np.random.normal(0,poblacion[i].varianzas[j])
             hijo.append(suma)
-        fit_hijo = "http://memento.evannai.inf.uc3m.es/age/robot4?c1=" + str(hijo[0]) + "&c2=" + str(hijo[1]) + "&c3=" + str(hijo[2]) + "&c4=" + str(hijo[3])
+        fit_hijo = "http://memento.evannai.inf.uc3m.es/age/robot4?c1=" + str(hijo[0]) + "&c2=" + str(hijo[1]) + "&c3=" + str(hijo[2]) + "&c4=" + str(hijo[3]) + "&c5=" + str(hijo[4]) + "&c6=" + str(hijo[5]) + "&c7=" + str(hijo[6]) + "&c8=" + str(hijo[7]) + "&c9=" + str(hijo[8]) + "&c10=" + str(hijo[9])
         r = requests.get(fit_hijo)
         if float(r.text) < poblacion[i].fitness_value:
             poblacion[i].fitness_value = float(r.text)

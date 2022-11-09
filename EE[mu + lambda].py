@@ -28,3 +28,7 @@ for i in range(n_individuos):
     llamada = "http://memento.evannai.inf.uc3m.es/age/robot4?c1=" + str(mots[0]) + "&c2=" + str(mots[1]) + "&c3=" + str(mots[2]) + "&c4=" + str(mots[3])
     r = requests.get(llamada)
     poblacion.append(Motores(mots,vars,float(r.text)))
+
+""" Creación de los hijos """
+for i in range(n_individuos/2):
+    hijos = []
