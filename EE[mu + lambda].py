@@ -30,5 +30,18 @@ for i in range(n_individuos):
     poblacion.append(Motores(mots,vars,float(r.text)))
 
 """ Creación de los hijos """
-for i in range(n_individuos/2):
+cont = 0
+while cont < n_individuos:
     hijos = []
+    var_hijo = []
+    mot_hijo = []
+    padre = poblacion[cont]
+    madre = poblacion[cont + 1]
+    for i in range(n_rotores):
+        var_hijo.append((padre.varianzas[i]**2 + madre.varianzas[i]**2)**1/2)
+        mot_hijo.append(np.random.normal(0,var_hijo[i]))
+        #mot_hijo.append(((padre.motor[i]+madre.motor[i])/2) + (np.random.normal(0,var_hijo[i])))
+        llamada2 = "http://memento.evannai.inf.uc3m.es/age/robot4?c1=" + str(mot_hijo[0]) + "&c2=" + str(mot_hijo[1]) + "&c3=" + str(mot_hijo[2]) + "&c4=" + str(mot_hijo[3])
+        fit_hijo = requests.get(llamada2)
+    poblacion.append(Motores(mot_hijo,var_hijo,float(fit_hijo)))
+    cont += 2
