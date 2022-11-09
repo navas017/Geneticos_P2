@@ -1,3 +1,4 @@
+import math
 import random
 import numpy as np
 import requests
@@ -5,7 +6,7 @@ import requests
 n_rotores = 4
 n_individuos = 100
 n_generaciones = 1000
-vec_mejora = []
+prob_mutacion = 5
 c = 0.82
 
 """ Clase que define la combinación de los motores ,varianzas y su valor de adecuación """
@@ -29,19 +30,32 @@ for i in range(n_individuos):
     r = requests.get(llamada)
     poblacion.append(Motores(mots,vars,float(r.text)))
 
-""" Creación de los hijos """
-cont = 0
-while cont < n_individuos:
-    hijos = []
-    var_hijo = []
-    mot_hijo = []
-    padre = poblacion[cont]
-    madre = poblacion[cont + 1]
-    for i in range(n_rotores):
-        var_hijo.append((padre.varianzas[i]**2 + madre.varianzas[i]**2)**1/2)
-        mot_hijo.append(np.random.normal(0,var_hijo[i]))
-        #mot_hijo.append(((padre.motor[i]+madre.motor[i])/2) + (np.random.normal(0,var_hijo[i])))
+generacion = 0
+while generacion < n_generaciones:
+    """ Creación de los hijos """
+    cont = 0
+    while cont < n_individuos:
+        hijos = []
+        var_hijo = []
+        mot_hijo = []
+        padre = poblacion[cont]
+        madre = poblacion[cont + 1]
+        for i in range(n_rotores):
+            new_var = np.sqrt(pow(padre.varianzas[i],2) + pow(madre.varianzas[i],2))
+            mutar = random.randint(0,100)
+            if mutar <= prob_mutacion:
+                new_var = new_var * np.exp(np.random.normal(0, new_var))
+            var_hijo.append(new_var)
+            mot_hijo.append(np.random.normal(0,var_hijo[i]))
+            #mot_hijo.append(((padre.motor[i]+madre.motor[i])/2) + (np.random.normal(0,var_hijo[i])))
         llamada2 = "http://memento.evannai.inf.uc3m.es/age/robot4?c1=" + str(mot_hijo[0]) + "&c2=" + str(mot_hijo[1]) + "&c3=" + str(mot_hijo[2]) + "&c4=" + str(mot_hijo[3])
-        fit_hijo = requests.get(llamada2)
-    poblacion.append(Motores(mot_hijo,var_hijo,float(fit_hijo)))
-    cont += 2
+        fit_hijo = (requests.get(llamada2)).text
+        poblacion.append(Motores(mot_hijo,var_hijo,float(fit_hijo)))
+        cont += 2
+
+    """ Ordenar de mayor a menor fitness y eliminar los n_individuos/2 peores """
+    ordenada = sorted(poblacion,key = lambda x : x.fitness_value)
+    poblacion = ordenada[:100]
+    print(generacion)
+    print(poblacion[0].fitness_value)
+    generacion += 1
